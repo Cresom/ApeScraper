@@ -49,6 +49,7 @@
             this.shitcoinBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.tblButtons = new System.Windows.Forms.TableLayoutPanel();
             this.btnStart = new System.Windows.Forms.PictureBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvShitCoinsGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.shitcoinBindingSource)).BeginInit();
@@ -288,6 +289,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn holderPercentDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ownerRenouncedDataGridViewCheckBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn shitCointContractTypeDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

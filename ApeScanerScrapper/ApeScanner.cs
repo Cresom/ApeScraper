@@ -1,31 +1,36 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static ApeScanerScrapper.Shitcoin;
-using OpenQA.Selenium.Support.UI;
 
 namespace ApeScanerScrapper
 {
     public partial class ApeScanner : Form
     {
-        String url = "https://poocoin.app/ape";
-        public IWebDriver driver;
+        private string url = "https://poocoin.app/ape";
+        private IWebDriver driver;
+        private List<Shitcoin> shitcoinList;
+        private List<Shitcoin> shitcoinListAux;
 
         public ApeScanner()
         {
             InitializeComponent();
+            shitcoinList = new List<Shitcoin>();
+            dgvShitCoinsGrid.DataSource = shitcoinList;
         }
 
         public void StartBrowser()
         {
-            List<Shitcoin> shitcoinList = new List<Shitcoin>();
+            shitcoinListAux = new List<Shitcoin>();
             driver = new ChromeDriver();
             driver.Navigate().GoToUrl(url);
 
@@ -62,7 +67,7 @@ namespace ApeScanerScrapper
 
                         shitcoin.LpLink = info[2].FindElements(By.TagName("a")).FirstOrDefault(x => x.Text == "BNB LP Holders").GetAttribute("href");
 
-                        shitcoinList.Add(shitcoin);
+                        shitcoinListAux.Add(shitcoin);
                     }
                 }
                 catch (Exception)
@@ -71,7 +76,7 @@ namespace ApeScanerScrapper
                 }           
             }
 
-            foreach (Shitcoin shitcoin in shitcoinList)
+            foreach (Shitcoin shitcoin in shitcoinListAux)
             {
                 try
                 {
@@ -89,14 +94,20 @@ namespace ApeScanerScrapper
 
                     shitcoin.MarketCap = marketCap;
                     shitcoin.Liquidity = liquidity;
+
+                    shitcoinList = shitcoinListAux;
+                    
+                    Invoke(new Action(() =>
+                    {
+                        dgvShitCoinsGrid.DataSource = shitcoinList;
+                        dgvShitCoinsGrid.Refresh();
+                    }));
                 }
                 catch (Exception)
                 {
                     //ERROR
                 }
             }
-
-            dgvShitCoinsGrid.DataSource = shitcoinList;
         }
 
         private bool GetOwnerRenounced(string url)
@@ -196,7 +207,8 @@ namespace ApeScanerScrapper
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            StartBrowser();
+            var task1 = new Task(() => StartBrowser(), TaskCreationOptions.AttachedToParent);
+            task1.Start();
         }
     }
 }
