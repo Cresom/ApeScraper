@@ -3,7 +3,6 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -31,7 +30,18 @@ namespace ApeScanerScrapper
         public void StartBrowser()
         {
             shitcoinListAux = new List<Shitcoin>();
-            driver = new ChromeDriver();
+            
+            ChromeOptions chromeOptions = new ChromeOptions();
+
+            chromeOptions.EnableMobileEmulation("Pixel 2");
+            chromeOptions.AddUserProfilePreference("safebrowsing.enabled", true);
+            chromeOptions.AddUserProfilePreference("credentials_enable_service", false);
+            chromeOptions.AddUserProfilePreference("profile.password_manager_enabled", false);
+
+            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            chromeDriverService.HideCommandPromptWindow = true;
+
+            driver = new ChromeDriver(chromeDriverService, chromeOptions);
             driver.Navigate().GoToUrl(url);
 
             Thread.Sleep(1000);
@@ -44,7 +54,7 @@ namespace ApeScanerScrapper
             //Wait for the web page to load tokens.
             Thread.Sleep(10000);
 
-            List<IWebElement> elementsCollection = driver.FindElements(By.TagName("tr")).ToList();
+          List<IWebElement> elementsCollection = driver.FindElements(By.TagName("tr")).ToList();
 
             foreach (IWebElement element in elementsCollection.Skip(1))
             {
@@ -148,7 +158,10 @@ namespace ApeScanerScrapper
         private void GetMarketCapAndLiquidity(string url, out decimal marketCap, out decimal liquidity)
         {
             driver.Navigate().GoToUrl(url);
-            Thread.Sleep(800);
+            Thread.Sleep(600);
+
+            driver.FindElements(By.ClassName("btn-light")).FirstOrDefault(x => x.Text.Contains("Info")).Click();
+            Thread.Sleep(200);
 
             IWebElement elementMC = driver.FindElements(By.ClassName("px-3")).FirstOrDefault(x => x.Text.Contains("$"));
             string marketCapText = elementMC.FindElement(By.ClassName("text-success")).Text;
@@ -202,7 +215,6 @@ namespace ApeScanerScrapper
                 return ContractType.Bad;
             else
                 return ContractType.Unknown;
-
         }
 
         private void btnStart_Click(object sender, EventArgs e)
